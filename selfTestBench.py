@@ -4,10 +4,8 @@
 __author__ = 'Jaycolas'
 
 from dataParser import NBATeamStat
-import  re
-
-html = r'<a href = "./game/37525.html" target = "_blank">DEADDEAD<a href = "./game/12345.html" target = "_blank">'
-test_html = "vgame/37525.html"
+from kNN import *
+import numpy as np
 
 
 QueryType='game'
@@ -18,6 +16,18 @@ Season1='2016'
 PlayerName = '斯蒂芬-库里'
 
 GSWTeamStat = NBATeamStat(QueryType,GameType,Team_id,Season0,Season1, PlayerName)
+StephCurryDataMatrix = GSWTeamStat.parseAllGamesFromSeasonData()
+m,n = np.shape(StephCurryDataMatrix)
+print "Size of the Player Data Matrix is %d, %d"%(m,n)
+
+kNNClassifywithNorm(StephCurryDataMatrix[:,0:n-2], StephCurryDataMatrix[:,n-1], 6)
 
 
-GSWTeamStat.parseAllGamesFromSeasonData()
+Team_id = 'CHI'
+PlayerName = '保罗-加索尔'
+CHITeamStat = NBATeamStat(QueryType,GameType,Team_id,Season0,Season1, PlayerName)
+PauGasolDataMatrix = CHITeamStat.parseAllGamesFromSeasonData()
+m,n = np.shape(PauGasolDataMatrix)
+print "Size of the Player Data Matrix is %d, %d"%(m,n)
+
+kNNClassifywithNorm(PauGasolDataMatrix[:,0:n-2], PauGasolDataMatrix[:,n-1], 6)

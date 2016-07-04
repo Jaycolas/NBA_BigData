@@ -58,6 +58,11 @@ def file2matrix(filename):
 
 
 def autoNorm(dataSet):
+    #For debug purpose#####
+    print dataSet
+    print dataSet.min
+    print dataSet.max
+    #######################
     minVal = dataSet.min(0)
     maxVal = dataSet.max(0)
     ranges = maxVal - minVal
@@ -77,7 +82,21 @@ def datingClassTest():
     for i in range(numTestVec):
         classifierResult = classify0(normMat[i, :], normMat[numTestVec:m, :], datingLabels[numTestVec:m],3)
         print "The classifier comes back with %d, the real answer is %d" %(classifierResult, datingLabels[i])
-        if classifierResult != datingLabels[i] :
-            errorCount += 1.0
+        if (classifierResult != datingLabels[i]): errorCount += 1.0
 
-    print "The failure rate is %f" %(errorCount/floa
+    print "The failure rate is %f" %(errorCount/float(numTestVec))
+
+def kNNClassifywithNorm(dataMat, dataLabels, k):
+    hoRatio = 0.1
+    normMat, ranges, minVals = autoNorm(dataMat)
+    m = normMat.shape[0]
+    numTestVec = int(m*hoRatio)
+    print "Tobal samples are ", m, "Test Vec using are ", numTestVec
+
+    errorCount = 0
+    for i in range(numTestVec):
+        classifierResult = classify0(normMat[i, :], normMat[numTestVec:m, :], dataLabels[numTestVec:m],k)
+        print "The classifier comes back with %d, the real answer is %d" %(classifierResult, dataLabels[i])
+        if (classifierResult != dataLabels[i]): errorCount+=1.0
+
+    print "The failure rate is %f" %(errorCount/float(numTestVec))

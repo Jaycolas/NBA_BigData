@@ -8,6 +8,9 @@ import urllib2
 import re
 import os
 import util
+import operator
+import string
+from numpy import *
 
 GSWSeasonDataPage = 'http://stat-nba.com/query_team.php?crtcol=date_out&order=0&QueryType=game&GameType=season&Team_id=GSW&PageNum=1000&Season0=2015&Season1=2016'
 
@@ -15,6 +18,7 @@ GSWPECDataPage='http://stat-nba.com/game/37770.html'
 WGAME_PAGE = 'http://stat-nba.com/game/37770.html'
 INVALID_STRING = 'Invalid String'
 CURRENT_PATH = os.getcwd()+'/'
+#SinglePlayerDataArr = [] #= array([])
 
 
 class NBATeamStat:
@@ -40,6 +44,8 @@ class NBATeamStat:
     _seasonDataHtmlFile = INVALID_STRING
     #Player's name
     _playerName = INVALID_STRING
+    #Player's data array to store the data per match
+    _singlePlayerDataArr = []
 
 
     def __init__(self, QueryType, GameType, Team_id, Season0, Season1, playerName):
@@ -51,6 +57,7 @@ class NBATeamStat:
         self._Season1 = Season1
         self._htmlWebSite = 'http://stat-nba.com/query_team.php?crtcol=date_out&order=0&QueryType='+QueryType+'&GameType='+GameType+'&Team_id='+Team_id+'&PageNum=1000&Season0='+Season0+'&Season1='+Season1
         self._playerName = playerName
+        self._singlePlayerDataArr = []
         print "htmlWebSite constructed is "+self._htmlWebSite
 
     def getTeamSeasonHtml(self):
@@ -75,7 +82,7 @@ class NBATeamStat:
                 #print html
             else:
                 print "html file does not exist, now loading the webpage from network"
-                html = util.getHtmlFromUrl(self._seasonDataHtmlFile)
+                html = util.getHtmlFromUrl(self._htmlWebSite)
 
                 if cmp(html, INVALID_STRING)!=0:
                     util.saveFile(htmlFile,html)
@@ -105,7 +112,7 @@ class NBATeamStat:
             print gameLinkMatch, winOrLose, homeOrAway
             print len(gameLinkMatch), len(winOrLose), len(homeOrAway)
 
-            winOrLoseNumer = []
+            winOrLoseNumber = []
             for game in winOrLose:
                 if cmp(game, '胜') == 0:
                     singleGame = 1
@@ -114,23 +121,52 @@ class NBATeamStat:
                 else:
                     print "Invalid game result"
                     singleGame = -1
+                winOrLoseNumber.append(singleGame)
 
-                winOrLoseNumer.append(singleGame)
+            homeOrAwayNumber = []
+            for game in homeOrAway:
+                if cmp(game, '主') == 0:
+                    singleGame = 1
+                elif cmp(game, '客') == 0:
+                    singleGame = 0
+                else:
+                    print "Invalid game result"
+                    singleGame = -1
+                homeOrAwayNumber.append(singleGame)
 
-            print winOrLoseNumer
+            gameInfoArray = []
+            if (len(gameLinkMatch)==len(winOrLoseNumber)) & (len(winOrLoseNumber) == len(homeOrAwayNumber)):
+                for i in range(len(gameLinkMatch)):
+                    gameInfoArray.append([gameLinkMatch[i], string.atof(homeOrAwayNumber[i]), string.atof(winOrLoseNumber[i])])
+            else:
+                print "Error: Lenth of gameLinkMatch, winOrLoseNumber, homeOrAwayNumber are not equal"
+                assert 0
 
-            #for gameLink in gameLinkMatch:
-            #    singleGameHtml = self.getSingleGameHtml(gameLink)
-            #    singlePlayerDataHtml = self.parseData4SinglePlayer(self._playerName, singleGameHtml)
-            #    self.storeDataForSingleMatch(singlePlayerDataHtml)
-
-            singleGameHtml = self.getSingleGameHtml(gameLinkMatch[0])
-            singlePlayerDataHtml = self.parseData4SinglePlayer(self._playerName, singleGameHtml)
-            print "singlePlayerDataHtml is "+ singlePlayerDataHtml
-            self.storeDataForSingleMatch(singlePlayerDataHtml)
+            print gameInfoArray
 
 
+            for gameInfo in gameInfoArray:
+                singleGameHtml = self.getSingleGameHtml(gameInfo[0])
+                homeOrAway = gameInfo[1]
+                winOrLose = gameInfo[2]
 
+
+                #singleGameHtml = self.getSingleGameHtml(gameLinkMatch[0])
+                singlePlayerDataHtml = self.parseData4SinglePlayer(self._playerName, singleGameHtml)
+                #print "singlePlayerDataHtml is "+ singlePlayerDataHtml
+                if cmp(singlePlayerDataHtml, INVALID_STRING) == 0 :
+                    print "Could not find any data in game ", singleGameHtml, " for player ", self._playerName
+                    continue
+
+                startLineUp, minutesPlayed, fieldGoalPercentage, fieldGoal, fieldGoalAttempted, threePPer, threeP, threePA, ftPer, ft, ftA, totalReb, offReb, defReb, assist, steal, block, turnOver, pFoul, points = self.storeDataForSingleMatch(singlePlayerDataHtml)
+                SingleMatchDataLine = [startLineUp, minutesPlayed, fieldGoalPercentage, fieldGoal, fieldGoalAttempted, threePPer, threeP, threePA, ftPer, ft, ftA, totalReb, offReb, defReb, assist, steal, block, turnOver, pFoul, points, homeOrAway, winOrLose]
+                print SingleMatchDataLine
+                self._singlePlayerDataArr.append(SingleMatchDataLine)
+                print len(self._singlePlayerDataArr)
+
+        SinglePlayerDataMatrix = array(self._singlePlayerDataArr)
+        print SinglePlayerDataMatrix
+        return SinglePlayerDataMatrix
 
     def getSingleGameHtml(self, singleGameLink):
         singleGameUrl = 'http://stat-nba.com/'+singleGameLink
@@ -156,7 +192,12 @@ class NBATeamStat:
         print playerName
         playerTotalDataPattern = re.compile('<a href="/player/\d+.html" target="_blank">'+playerName+'</a>.*?normal pts change_color col21 row\d" rank="\d+">\d+</td>', re.S)
         playerTotalDataHtml = re.findall(playerTotalDataPattern, singleGameHtml)
-        return playerTotalDataHtml[0]
+        if playerTotalDataHtml:
+            print "Got single player's data"
+            return playerTotalDataHtml[0]
+        else:
+            print "Did not find anything for single player"
+            return INVALID_STRING
 
 #HTML cut for a single player's data
 #<tr class="sort">
@@ -210,44 +251,86 @@ class NBATeamStat:
 
         startLineUp = re.findall(startLineUpPattern, singlePlayerDataHtml)
         print "startline up is ", startLineUp
+        startLineUp = string.atof(startLineUp[0])
+
         minutesPlayed = re.findall(minutesPlayedPattern, singlePlayerDataHtml)
         print "minutes played is ", minutesPlayed
+        minutesPlayed = string.atof(minutesPlayed[0])
+
         fieldGoalPercentage = re.findall(fieldGoalPercentagePattern, singlePlayerDataHtml)
         print "field goal percentage is ", fieldGoalPercentage
+        fieldGoalPercentage = string.atof(fieldGoalPercentage[0])
+
         fieldGoal = re.findall(fieldGoalPattern, singlePlayerDataHtml)
         print "field goal is ", fieldGoal
+        fieldGoal = string.atof(fieldGoal[0])
+
         fieldGoalAttempted = re.findall(filedGoalAttemptedPattern, singlePlayerDataHtml)
         print "field goal attempted is ", fieldGoalAttempted
+        fieldGoalAttempted = string.atof(fieldGoalAttempted[0])
+
         threePPer = re.findall(threePPerPattern, singlePlayerDataHtml)
         print "3 pointer percentage is ", threePPer
+        threePPer = string.atof(threePPer[0])
+
         threeP = re.findall(threePPattern, singlePlayerDataHtml)
         print "3 pointer made is", threeP
+        threeP = string.atof(threeP[0])
+
         threePA = re.findall(threePAPattern, singlePlayerDataHtml)
         print "3 pointer atempted is ", threePA
+        threePA = string.atof(threePA[0])
+
+
         ftPer = re.findall(ftPerPattern, singlePlayerDataHtml)
         print "freethrow percentage is ", ftPer
+        ftPer = string.atof(ftPer[0])
+
         ft = re.findall(ftPattern, singlePlayerDataHtml)
         print "freethrow is ", ft
+        ft = string.atof(ft[0])
+
         ftA = re.findall(ftAPattern, singlePlayerDataHtml)
         print "freethrow attempted is ", ftA
+        ftA = string.atof(ftA[0])
+
         totalReb = re.findall(totalRebPattern, singlePlayerDataHtml)
         print "total rebound number is ", totalReb
+        totalReb = string.atof(totalReb[0])
+
         offReb = re.findall(offRebPattern, singlePlayerDataHtml)
         print "offensive rebound number is ", offReb
+        offReb = string.atof(offReb[0])
+
         defReb = re.findall(defRebPattern, singlePlayerDataHtml)
         print "defensive reboudn number is ", defReb
+        defReb = string.atof(defReb[0])
+
         assist = re.findall(assistPattern, singlePlayerDataHtml)
         print "assitant is ", assist
+        assist = string.atof(assist[0])
+
         steal = re.findall(stealPattern, singlePlayerDataHtml)
         print "steal is ", steal
+        steal = string.atof(steal[0])
+
         block = re.findall(blkPattern, singlePlayerDataHtml)
         print "block is ", block
+        block = string.atof(block[0])
+
         turnOver = re.findall(tovPattern, singlePlayerDataHtml)
         print "turnover is ", turnOver
+        turnOver = string.atof(turnOver[0])
+
         pFoul = re.findall(pFoulPattern, singlePlayerDataHtml)
         print "personal Foul is", pFoul
+        pFoul = string.atof(pFoul[0])
+
         points = re.findall(ptsPattern, singlePlayerDataHtml)
         print "points is", points
+        points = string.atof(points[0])
+
+        return  startLineUp, minutesPlayed, fieldGoalPercentage, fieldGoal,fieldGoalAttempted, threePPer, threeP, threePA, ftPer, ft, ftA, totalReb, offReb, defReb, assist, steal, block, turnOver, pFoul, points
 
 
 
