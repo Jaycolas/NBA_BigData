@@ -6,13 +6,26 @@ __author__ = 'Jaycolas'
 import os
 import urllib
 import urllib2
+import time
 
 INVALID_STRING = 'Invalid String'
 User_Agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/46.0"
 headers = {'User-Agent': User_Agent}
 
 
+def getCurrentTime():
+	return time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime() )
 
+def createLogFileAndRedrect():
+	# Redirect the stdout to log file
+	CURRENT_PATH = os.getcwd()+'/'
+	LOG_PATH = CURRENT_PATH + 'Log/'
+	currentTime = getCurrentTime()
+	LOG_FILE = LOG_PATH + currentTime + ".log"
+	print LOG_FILE
+	mkdir(LOG_PATH)
+	LogFileHandler = open(LOG_FILE, 'w')
+	sys.stdout = LogFileHandler
 
 
 #Below function are mainly for basic utilities

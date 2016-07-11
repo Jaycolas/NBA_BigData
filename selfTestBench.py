@@ -6,7 +6,13 @@ __author__ = 'Jaycolas'
 from dataParser import NBATeamStat
 from kNN import *
 import numpy as np
+import util
+import os
+import sys
 
+
+
+#util.createLogFileAndRedrect()
 
 QueryType='game'
 GameType='season'
@@ -15,12 +21,15 @@ Season0='2015'
 Season1='2016'
 PlayerName = '斯蒂芬-库里'
 
+k = 10
+hoRatio = 0.2
+'''
 GSWTeamStat = NBATeamStat(QueryType,GameType,Team_id,Season0,Season1, PlayerName)
 StephCurryDataMatrix = GSWTeamStat.parseAllGamesFromSeasonData()
 m,n = np.shape(StephCurryDataMatrix)
 print "Size of the Player Data Matrix is %d, %d"%(m,n)
 
-kNNClassifywithNorm(StephCurryDataMatrix[:,0:n-2], StephCurryDataMatrix[:,n-1], 6)
+kNNClassifywithNorm(StephCurryDataMatrix[:,0:n-2], StephCurryDataMatrix[:,n-1], k, hoRatio)'''
 
 
 Team_id = 'CHI'
@@ -30,4 +39,4 @@ PauGasolDataMatrix = CHITeamStat.parseAllGamesFromSeasonData()
 m,n = np.shape(PauGasolDataMatrix)
 print "Size of the Player Data Matrix is %d, %d"%(m,n)
 
-kNNClassifywithNorm(PauGasolDataMatrix[:,0:n-2], PauGasolDataMatrix[:,n-1], 6)
+kNNClassifywithNorm(PauGasolDataMatrix[:,0:n-2], PauGasolDataMatrix[:,n-1], k, hoRatio)

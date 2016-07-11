@@ -109,7 +109,7 @@ class NBATeamStat:
             #gameResult = re.findall(gameResultPattern, seasonDataHtml)
 
             #Try print all the matched game
-            print gameLinkMatch, winOrLose, homeOrAway
+            #print gameLinkMatch, winOrLose, homeOrAway
             print len(gameLinkMatch), len(winOrLose), len(homeOrAway)
 
             winOrLoseNumber = []
@@ -142,27 +142,31 @@ class NBATeamStat:
                 print "Error: Lenth of gameLinkMatch, winOrLoseNumber, homeOrAwayNumber are not equal"
                 assert 0
 
-            print gameInfoArray
+            #print gameInfoArray
 
 
             for gameInfo in gameInfoArray:
-                singleGameHtml = self.getSingleGameHtml(gameInfo[0])
-                homeOrAway = gameInfo[1]
-                winOrLose = gameInfo[2]
-
+				singleGameHtml = self.getSingleGameHtml(gameInfo[0])
+				homeOrAway = gameInfo[1]
+				winOrLose = gameInfo[2]
 
                 #singleGameHtml = self.getSingleGameHtml(gameLinkMatch[0])
-                singlePlayerDataHtml = self.parseData4SinglePlayer(self._playerName, singleGameHtml)
+				singlePlayerDataHtml = self.parseData4SinglePlayer(self._playerName, singleGameHtml)
                 #print "singlePlayerDataHtml is "+ singlePlayerDataHtml
-                if cmp(singlePlayerDataHtml, INVALID_STRING) == 0 :
-                    print "Could not find any data in game ", singleGameHtml, " for player ", self._playerName
-                    continue
+				if cmp(singlePlayerDataHtml, INVALID_STRING) == 0 :
+					print "Could not find any data in game ", gameInfo[0], " for player ", self._playerName
+					print "Now setting all the data to 0"
+					startLineUp = 0; minutesPlayed = 0; fieldGoalPercentage = 0; fieldGoal = 0; fieldGoalAttempted = 0; threePPer = 0; threeP = 0; threePA = 0; ftPer = 0; ft = 0; ftA = 0; totalReb = 0; offReb = 0; defReb = 0; assist = 0; steal = 0; block = 0; turnOver=0; pFoul=0; points=0;
+				else:
+					startLineUp, minutesPlayed, fieldGoalPercentage, fieldGoal, fieldGoalAttempted, threePPer, threeP, threePA, ftPer, ft, ftA, totalReb, offReb, defReb, assist, steal, block, turnOver, pFoul, points = self.storeDataForSingleMatch(singlePlayerDataHtml)
 
-                startLineUp, minutesPlayed, fieldGoalPercentage, fieldGoal, fieldGoalAttempted, threePPer, threeP, threePA, ftPer, ft, ftA, totalReb, offReb, defReb, assist, steal, block, turnOver, pFoul, points = self.storeDataForSingleMatch(singlePlayerDataHtml)
-                SingleMatchDataLine = [startLineUp, minutesPlayed, fieldGoalPercentage, fieldGoal, fieldGoalAttempted, threePPer, threeP, threePA, ftPer, ft, ftA, totalReb, offReb, defReb, assist, steal, block, turnOver, pFoul, points, homeOrAway, winOrLose]
-                print SingleMatchDataLine
-                self._singlePlayerDataArr.append(SingleMatchDataLine)
-                print len(self._singlePlayerDataArr)
+
+				SingleMatchDataLine = [startLineUp, minutesPlayed, fieldGoalPercentage, fieldGoal, fieldGoalAttempted, threePPer, threeP, threePA, ftPer, ft, ftA, totalReb, offReb, defReb, assist, steal, block, turnOver, pFoul, points, homeOrAway, winOrLose]
+				print SingleMatchDataLine
+				self._singlePlayerDataArr.append(SingleMatchDataLine)
+				print "Now has process %d games"%(len(self._singlePlayerDataArr))
+				#Below break are only for test purpose
+				#break
 
         SinglePlayerDataMatrix = array(self._singlePlayerDataArr)
         print SinglePlayerDataMatrix
