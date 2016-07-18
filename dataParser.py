@@ -20,6 +20,34 @@ INVALID_STRING = 'Invalid String'
 CURRENT_PATH = os.getcwd()+'/'
 #SinglePlayerDataArr = [] #= array([])
 
+#Below are line number definition, only for code readability
+#return  startLineUp, minutesPlayed, fieldGoalPercentage, fieldGoal,fieldGoalAttempted, threePPer, threeP, threePA, ftPer, ft, ftA, totalReb, offReb, defReb, assist, steal, block, turnOver, pFoul, points
+START_LINE_UP = 0
+MINS = 1
+FGP = 2
+FG = 3
+FGA = 4
+THREEPPER = 5
+THREEP = 6
+THREEPA = 7
+FTPER = 8
+FT = 9
+FTA = 10
+REB = 11
+OFFREB = 12
+DEFREB = 13
+ASSIT =  14
+STEAL = 15
+BLOCK = 16
+TURNOVER = 17
+FOUL = 18
+POINTS = 19
+HOME_AWAY = 20
+WIN_LOSE = 21
+
+
+
+
 
 class NBATeamStat:
     #order 0 means ascending time period, while 1 means descending time period

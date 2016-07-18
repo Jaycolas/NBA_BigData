@@ -86,8 +86,7 @@ def datingClassTest():
 
     print "The failure rate is %f" %(errorCount/float(numTestVec))
 
-def kNNClassifywithNorm(dataMat, dataLabels, k):
-    hoRatio = 0.1
+def kNNClassifywithNorm(dataMat, dataLabels, k, hoRatio):
     normMat, ranges, minVals = autoNorm(dataMat)
     m = normMat.shape[0]
     numTestVec = int(m*hoRatio)
