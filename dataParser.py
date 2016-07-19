@@ -197,7 +197,7 @@ class NBATeamStat:
 				#break
 
         SinglePlayerDataMatrix = array(self._singlePlayerDataArr)
-        print SinglePlayerDataMatrix
+        #print SinglePlayerDataMatrix
         return SinglePlayerDataMatrix
 
     def getSingleGameHtml(self, singleGameLink):

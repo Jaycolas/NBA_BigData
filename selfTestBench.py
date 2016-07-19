@@ -31,9 +31,9 @@ StephCurryDataMatrix = GSWTeamStat.parseAllGamesFromSeasonData()
 game_count, stat_number = np.shape(StephCurryDataMatrix)
 print "Size of the Player Data Matrix is %d, %d"%(game_count,stat_number)
 
-kNNClassifywithNorm(StephCurryDataMatrix[:,(THREEP, ASSIT)], StephCurryDataMatrix[:,stat_number-1], k, hoRatio)'''
+kNNClassifywithNorm(StephCurryDataMatrix[:,(THREEP, REB)], StephCurryDataMatrix[:,stat_number-1], k, hoRatio)'''
 
-
+'''
 Team_id = 'CHI'
 PlayerName = '保罗-加索尔'
 CHITeamStat = NBATeamStat(QueryType,GameType,Team_id,Season0,Season1, PlayerName)
@@ -41,11 +41,40 @@ PauGasolDataMatrix = CHITeamStat.parseAllGamesFromSeasonData()
 game_count, stat_number = np.shape(PauGasolDataMatrix)
 print "Size of the Player Data Matrix is %d, %d"%(game_count, stat_number)
 
-kNNClassifywithNorm(PauGasolDataMatrix[:,(REB, POINTS)], PauGasolDataMatrix[:,stat_number-1], k, hoRatio)
+kNNClassifywithNorm(PauGasolDataMatrix[:,(POINTS, ASSIT, BLOCK, REB)], PauGasolDataMatrix[:,stat_number-1], k, hoRatio)
+'''
+
+'''
+Team_id = 'HOU'
+PlayerName = '詹姆斯-哈登'
+CHITeamStat = NBATeamStat(QueryType,GameType,Team_id,Season0,Season1, PlayerName)
+PauGasolDataMatrix = CHITeamStat.parseAllGamesFromSeasonData()
+game_count, stat_number = np.shape(PauGasolDataMatrix)
+print "Size of the Player Data Matrix is %d, %d"%(game_count, stat_number)
+
+kNNClassifywithNorm(PauGasolDataMatrix[:,(POINTS, ASSIT, BLOCK, REB, THREEP, HOME_AWAY)], PauGasolDataMatrix[:,stat_number-1], k, hoRatio)
+'''
+
+Team_id = 'LAL'
+PlayerName = '乔丹-克拉克森'
+CHITeamStat = NBATeamStat(QueryType,GameType,Team_id,Season0,Season1, PlayerName)
+PauGasolDataMatrix = CHITeamStat.parseAllGamesFromSeasonData()
+game_count, stat_number = np.shape(PauGasolDataMatrix)
+print "Size of the Player Data Matrix is %d, %d"%(game_count, stat_number)
+
+kNNClassifywithNorm(PauGasolDataMatrix[:,(POINTS, ASSIT, BLOCK, REB, THREEP, HOME_AWAY)], PauGasolDataMatrix[:,stat_number-1], k, hoRatio)
+
+
+
+#Below are for player contrast
+
+
+
+
 
 
 #Below are for figure drawing
-
+'''
 x_stat_index = REB
 y_stat_index = POINTS
 TestMatrix = PauGasolDataMatrix
@@ -87,6 +116,6 @@ ax.legend([win_dots, lose_dots], ["WIN", "LOST"], loc=2)
 plt.xlabel('Rebounds')
 plt.ylabel('Points')
 plt.title("Paul Gasol's Stat Analysis")
-plt.show()
+plt.show()'''
 
 

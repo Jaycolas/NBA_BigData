@@ -6,6 +6,7 @@ __author__ = 'Jaycolas'
 
 
 from numpy import *
+import random
 
 import operator
 
@@ -93,9 +94,27 @@ def kNNClassifywithNorm(dataMat, dataLabels, k, hoRatio):
     print "Tobal samples are ", m, "Test Vec using are ", numTestVec
 
     errorCount = 0
+    testVecIdxArr = random.sample(range(m), numTestVec)
+    testVecIdxArrSet = set(testVecIdxArr)
+    wholeSet = set(range(m))
+    trainVecIdxSet = wholeSet.difference(testVecIdxArrSet)
+    trainVecIdxArr = list(trainVecIdxSet)
+
+    print "Test Vector Index Array are", testVecIdxArr
+    print "Train Vector Index Array are", trainVecIdxArr
+
+    for i in testVecIdxArr:
+        classifierResult = classify0(normMat[i, :], normMat[trainVecIdxArr, :], dataLabels[trainVecIdxArr],k)
+        print "The classifier comes back with %d, the real answer is %d" %(classifierResult, dataLabels[i])
+        if (classifierResult != dataLabels[i]): errorCount+=1.0
+
+
+
+    '''
+    Below code using the first "numTestVec" samples as test vector, need to change it into random selection
     for i in range(numTestVec):
         classifierResult = classify0(normMat[i, :], normMat[numTestVec:m, :], dataLabels[numTestVec:m],k)
         print "The classifier comes back with %d, the real answer is %d" %(classifierResult, dataLabels[i])
         if (classifierResult != dataLabels[i]): errorCount+=1.0
-
+    '''
     print "The failure rate is %f" %(errorCount/float(numTestVec))
