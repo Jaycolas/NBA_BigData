@@ -4,6 +4,7 @@ Logistic Regression Working Module
 @author: Peter
 '''
 from numpy import *
+import random
 
 def loadDataSet():
     dataMat = []; labelMat = []
@@ -14,21 +15,168 @@ def loadDataSet():
         labelMat.append(int(lineArr[2]))
     return dataMat,labelMat
 
-def sigmoid(inX):
-    return 1.0/(1+exp(-inX))
 
-def gradAscent(dataMatIn, classLabels):
-    dataMatrix = mat(dataMatIn)             #convert to NumPy matrix
-    labelMat = mat(classLabels).transpose() #convert to NumPy matrix
-    m,n = shape(dataMatrix)
-    alpha = 0.001
-    maxCycles = 500
-    weights = ones((n,1))
-    for k in range(maxCycles):              #heavy on matrix operations
-        h = sigmoid(dataMatrix*weights)     #matrix mult
-        error = (labelMat - h)              #vector subtraction
-        weights = weights + alpha * dataMatrix.transpose()* error #matrix mult
-    return weights
+def logisticRegression(x, y, alpha, maxCycles, errThreshold, algoType)
+
+
+
+def sigmoid(z):
+    return 1.0/(1+exp(-z))
+
+
+def batchGradAscent(x, y, alpha, maxCycles , errThreshold)
+    xMat = mat(x)
+    yMat = mat(y).transpose()
+
+    # m: data sample number ;  n: feature number
+    mx,nx = shape(xMat)
+    print "for xMat, mx=%d, nx=%d"%(mx,nx)
+    my,ny = shape(yMat)
+    print "for yMat, my=%d, ny=%d"%(my,ny)
+
+    if mx!=my :
+        print "xMat's line count should equals yMat's"
+        assert(0)
+
+    theta = ones((nx, 1))
+
+    for k in range(maxCycles)
+        h = sigmoid(xMat*theta)
+
+        err = yMat - h
+
+        #We should set an error threshold
+        if err <= errThreshold:
+            print "Now estimation error %f is less than errThreshold, iteration will break"%(err)
+            break
+        # theta: n by 1 ; xMat: m by n; err:m by 1
+        theta = theta + alpha * xMat.transpose() * err
+
+    print "Final error is %f"%(err)
+    return theta
+
+
+def batchGradDescent(x, y, alpha, maxCycles , errThreshold)
+    xMat = mat(x)
+
+    my,ny = shape(yMat)
+
+    if ny > 1 :
+        #Only transpose y if y is a line vector
+        yMat = mat(y).transpose()
+
+
+    # m: data sample number ;  n: feature number
+    mx,nx = shape(xMat)
+    print "for xMat, mx=%d, nx=%d"%(mx,nx)
+
+    print "for yMat, my=%d, ny=%d"%(my,ny)
+
+    if mx!=my :
+        print "xMat's line count should equals yMat's"
+        assert(0)
+
+    theta = ones((nx, 1))
+
+    for k in range(maxCycles):
+        h = sigmoid(xMat*theta)
+
+        err = yMat - h
+
+        #We should set an error threshold
+        if err <= errThreshold:
+            print "Now estimation error %f is less than errThreshold, iteration will break"%(err)
+            break
+        # theta: n by 1 ; xMat: m by n; err:m by 1
+        theta = theta - alpha * xMat.transpose() * err
+
+    print "Final error is %f"%(err)
+    return theta
+
+
+#The original Stochastic Gradient Ascent
+def stocGradAscent0(x, y, alpha):
+    m,n = shape(x)
+    theta = ones(n)   #initialize to all ones
+
+    for i in range(m):
+        h = sigmoid(sum(x[i]*theta))
+        err = y[i] - h
+        theta = theta + alpha * err * x[i]
+
+    return theta
+
+#The original Stochastic Gradient Descent
+def stocGradDescent0(x, y, alpha):
+    m,n = shape(x)
+    theta = ones(n)   #initialize to all ones
+
+    for i in range(m):
+        h = sigmoid(sum(x[i]*theta))
+        err = y[i] - h
+        theta = theta - alpha * err * x[i]
+
+    return theta
+
+#An optimized Stochastic Gradient Ascent
+def stochaGradAscent(x, y, alpha, iterNum, errTheshold)
+    m,n = shape(x)
+    theta = ones(n)   #initialize to all ones
+
+    if errTheshold <= 0
+        print "Warning errThreshold: %f is invalid, it has to be larger than 0"%errTheshold
+
+    for j in range(iterNum):
+        dataIndex = range(m)
+        for i in range(m):
+            alpha = 4/(1.0+j+i)+alpha    #apha decreases with iteration, does not
+            randIndex = int(random.choice(dataIndex))#go to 0 because of the constant
+            h = sigmoid(sum(x[randIndex]*theta))
+            err = y[randIndex] - h
+
+            if abs(err) <= errTheshold :
+                print "error %f has converged"%(err)
+                break
+
+            theta = theta + alpha * err * x[randIndex]
+
+            del(dataIndex[randIndex])
+
+    return theta
+
+
+#An optimized Stochastic Gradient Ascent
+def stochaGradDescent(x, y, alpha, iterNum, errTheshold):
+    m,n = shape(x)
+    theta = ones(n)   #initialize to all ones
+
+    if errTheshold <= 0:
+        print "Warning errThreshold: %f is invalid, it has to be larger than 0"%errTheshold
+
+    for j in range(iterNum):
+        dataIndex = range(m)
+        for i in range(m):
+            alpha = 4/(1.0+j+i)+alpha    #apha decreases with iteration, does not
+            randIndex = int(random.choice(dataIndex))#go to 0 because of the constant
+            h = sigmoid(sum(x[randIndex]*theta))
+            err = y[randIndex] - h
+
+            if abs(err) <= errTheshold :
+                print "error %f has converged"%(err)
+                break
+
+            theta = theta - alpha * err * x[randIndex]
+
+            del(dataIndex[randIndex])
+
+    return theta
+
+def classifyVector(x, theta):
+    prob = sigmoid(sum(x*theta))
+    if prob > 0.5: return 1.0
+    else: return 0.0
+
+
 
 def plotBestFit(weights):
     import matplotlib.pyplot as plt
@@ -52,34 +200,8 @@ def plotBestFit(weights):
     plt.xlabel('X1'); plt.ylabel('X2');
     plt.show()
 
-def stocGradAscent0(dataMatrix, classLabels):
-    m,n = shape(dataMatrix)
-    alpha = 0.01
-    weights = ones(n)   #initialize to all ones
-    for i in range(m):
-        h = sigmoid(sum(dataMatrix[i]*weights))
-        error = classLabels[i] - h
-        weights = weights + alpha * error * dataMatrix[i]
-    return weights
 
-def stocGradAscent1(dataMatrix, classLabels, numIter=150):
-    m,n = shape(dataMatrix)
-    weights = ones(n)   #initialize to all ones
-    for j in range(numIter):
-        dataIndex = range(m)
-        for i in range(m):
-            alpha = 4/(1.0+j+i)+0.0001    #apha decreases with iteration, does not 
-            randIndex = int(random.uniform(0,len(dataIndex)))#go to 0 because of the constant
-            h = sigmoid(sum(dataMatrix[randIndex]*weights))
-            error = classLabels[randIndex] - h
-            weights = weights + alpha * error * dataMatrix[randIndex]
-            del(dataIndex[randIndex])
-    return weights
 
-def classifyVector(inX, weights):
-    prob = sigmoid(sum(inX*weights))
-    if prob > 0.5: return 1.0
-    else: return 0.0
 
 def colicTest():
     frTrain = open('horseColicTraining.txt'); frTest = open('horseColicTest.txt')
