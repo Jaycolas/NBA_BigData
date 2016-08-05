@@ -69,3 +69,48 @@ def kMeans(dataSet, k, distMeas=distEclud, createCent=randCent):
 
     return centroids, clusterAssment
 
+
+def biKmeans(dataSet, k, distMeas=distEclud):
+    
+    m = shape(dataSet)[0] #m is the sample number
+    clusterAssment = mat(zeros((m,2)))
+    centroid0 = mean(dataSet, axis=0).tolist()[0] # the first element of the tolist result
+    centList =[centroid0] #create a list with one centroid
+    for j in range(m):#calc initial Error
+        clusterAssment[j,1] = distMeas(mat(centroid0), dataSet[j,:])**2
+    while (len(centList) < k):
+        lowestSSE = inf
+        for i in range(len(centList)):
+            ptsInCurrCluster = dataSet[nonzero(clusterAssment[:,0].A==i)[0],:]#get the data points currently in cluster i
+
+            #centroidMat is the 2 centroids of cluster i, splitClustAss only has two categories
+            centroidMat, splitClustAss = kMeans(ptsInCurrCluster, 2, distMeas)
+
+            #Get all the sse for splited result
+            sseSplit = sum(splitClustAss[:,1])#compare the SSE to the currrent minimum
+
+            #get all the samples which does not below to cluster i
+            sseNotSplit = sum(clusterAssment[nonzero(clusterAssment[:,0].A!=i)[0],1])
+
+            print "sseSplit, and notSplit: ",sseSplit,sseNotSplit
+            if (sseSplit + sseNotSplit) < lowestSSE:
+                #update the best centroid to split
+                bestCentToSplit = i
+                #bestNewCent's keep the new 2 centroid divided
+                bestNewCents = centroidMat
+                #bestCustAss save the splitted cluster's feature
+                bestClustAss = splitClustAss.copy()
+                lowestSSE = sseSplit + sseNotSplit
+
+        #This is the tricky part
+        #Currently the number of centers we have is len(centList), so the maximum cluster number should be len(centList)-1
+        #So in this case since we have a new cluster, we are having a [len(centList)-1]+1 cluster
+        bestClustAss[nonzero(bestClustAss[:,0].A == 1)[0],0] = len(centList) #change 1 to 3,4, or whatever
+        bestClustAss[nonzero(bestClustAss[:,0].A == 0)[0],0] = bestCentToSplit
+
+        print 'the bestCentToSplit is: ',bestCentToSplit
+        print 'the len of bestClustAss is: ', len(bestClustAss)
+        centList[bestCentToSplit] = bestNewCents[0,:].tolist()[0]#replace a centroid with two best centroids
+        centList.append(bestNewCents[1,:].tolist()[0])
+        clusterAssment[nonzero(clusterAssment[:,0].A == bestCentToSplit)[0],:]= bestClustAss#reassign new clusters, and SSE
+    return mat(centList), clusterAssment
