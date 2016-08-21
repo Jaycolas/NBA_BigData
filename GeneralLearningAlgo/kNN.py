@@ -6,9 +6,44 @@ __author__ = 'Jaycolas'
 
 
 from numpy import *
+from modelSelection import *
 import random
 
 import operator
+
+
+class kNNModel(Model):
+
+    #The only
+    _k = 0
+    _x_train = np.zeros(10)
+    _y_train = np.zeros(10)
+    def __init__(self,k):
+        self._k = k
+        #No training is required for kNN
+        #self._isTrained = True
+
+    def modelTraining(self, x_train, y_train):
+        print "This is kNN and nothing need to be trained"
+        self._isTrained = True
+        self._x_train = x_train
+        self._y_train = y_train
+
+    def calcTrainingErr(self, x_validation, y_validation):
+
+
+
+
+    '''
+    Below code using the first "numTestVec" samples as test vector, need to change it into random selection
+    for i in range(numTestVec):
+        classifierResult = classify0(normMat[i, :], normMat[numTestVec:m, :], dataLabels[numTestVec:m],k)
+        print "The classifier comes back with %d, the real answer is %d" %(classifierResult, dataLabels[i])
+        if (classifierResult != dataLabels[i]): errorCount+=1.0
+    '''
+    print "The failure rate is %f" %(errorCount/float(numTestVec))
+
+
 
 def createDataSet():
     group = array([[1.0, 1.1], [1.0, 1.0], [0,0], [0,0.1]])

@@ -3,14 +3,17 @@
 
 __author__ = 'Jaycolas'
 
+import sys
+#sys.path.append("..\\GeneralLearningAlgo\\")
+#TODO Please make sure we use relative path instead of absolute path
+sys.path.append("/Users/nanshen/PycharmProjects/MachineLearning/machinelearninginaction/NBA/GeneralLearningAlgo")
+
+
+import numpy as np
+
 from dataParser import *
 from kNN import *
-import numpy as np
-import util
-import os
-import sys
-import matplotlib.pyplot as plt
-
+from logRegres import *
 
 
 #util.createLogFileAndRedrect()
@@ -44,17 +47,20 @@ print "Size of the Player Data Matrix is %d, %d"%(game_count, stat_number)
 kNNClassifywithNorm(PauGasolDataMatrix[:,(POINTS, ASSIT, BLOCK, REB)], PauGasolDataMatrix[:,stat_number-1], k, hoRatio)
 '''
 
-'''
+
 Team_id = 'HOU'
 PlayerName = '詹姆斯-哈登'
 CHITeamStat = NBATeamStat(QueryType,GameType,Team_id,Season0,Season1, PlayerName)
-PauGasolDataMatrix = CHITeamStat.parseAllGamesFromSeasonData()
-game_count, stat_number = np.shape(PauGasolDataMatrix)
+PlayerDataMat = CHITeamStat.parseAllGamesFromSeasonData()
+game_count, stat_number = np.shape(PlayerDataMat)
 print "Size of the Player Data Matrix is %d, %d"%(game_count, stat_number)
 
-kNNClassifywithNorm(PauGasolDataMatrix[:,(POINTS, ASSIT, BLOCK, REB, THREEP, HOME_AWAY)], PauGasolDataMatrix[:,stat_number-1], k, hoRatio)
-'''
+kNNClassifywithNorm(PlayerDataMat[:,(POINTS, ASSIT, BLOCK, REB, THREEP, HOME_AWAY)], PlayerDataMat[:,stat_number-1], k, hoRatio)
 
+
+
+
+'''
 Team_id = 'LAL'
 PlayerName = '乔丹-克拉克森'
 CHITeamStat = NBATeamStat(QueryType,GameType,Team_id,Season0,Season1, PlayerName)
@@ -63,7 +69,7 @@ game_count, stat_number = np.shape(PauGasolDataMatrix)
 print "Size of the Player Data Matrix is %d, %d"%(game_count, stat_number)
 
 kNNClassifywithNorm(PauGasolDataMatrix[:,(POINTS, ASSIT, BLOCK, REB, THREEP, HOME_AWAY)], PauGasolDataMatrix[:,stat_number-1], k, hoRatio)
-
+'''
 
 
 #Below are for player contrast

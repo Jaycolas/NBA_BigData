@@ -4,27 +4,45 @@ Logistic Regression Working Module
 @author: Peter
 '''
 from numpy import *
+from modelSelection import *
 import random
 
-def loadDataSet():
-    dataMat = []; labelMat = []
-    fr = open('testSet.txt')
-    for line in fr.readlines():
-        lineArr = line.strip().split()
-        dataMat.append([1.0, float(lineArr[0]), float(lineArr[1])])
-        labelMat.append(int(lineArr[2]))
-    return dataMat,labelMat
+BATCH_GRAD_DESCENT = 0
+STOCH_GRAD_DESCENT = 1
+NEWTON_METHOD = 2
+
+class logRegModel(Model):
 
 
-def logisticRegression(x, y, alpha, maxCycles, errThreshold, algoType)
+
+#algoType to indicate which algorithm need to be applied
+#x_tested is the imput vector
+def logisticRegression(x, y, alpha, maxCycles, errThreshold, algoType, x_tested):
+    if algoType ==  BATCH_GRAD_DESCENT:
+        theta = batchGradAscent(x, y, alpha, maxCycles, errThreshold)
+    elif algoType == STOCH_GRAD_DESCENT:
+        theta = stochaGradAscent(x,y,alpha)
+    elif algoType == NEWTON_METHOD:
+        theta = newtonMethod(x,y, maxCycles, errThreshold)
+    else:
+        print "algoType is not valid, %d"%(algoType)
+        assert 0
+
+    y_estimated = sigmoid(x_tested*theta)
+
+    if y_estimated >= 0.5:
+        return 1
+    else:
+        return 0
+
+
 
 
 
 def sigmoid(z):
     return 1.0/(1+exp(-z))
 
-
-def batchGradAscent(x, y, alpha, maxCycles , errThreshold)
+def newtonMethod(x,y, maxCycles, errThreshold):
     xMat = mat(x)
     yMat = mat(y).transpose()
 
@@ -40,13 +58,46 @@ def batchGradAscent(x, y, alpha, maxCycles , errThreshold)
 
     theta = ones((nx, 1))
 
-    for k in range(maxCycles)
+    for i in range(maxCycles):
+        h = sigmoid(xMat*theta)
+        err = yMat - h
+
+         #We should set an error threshold
+        if abs(amax(err)) <= errThreshold:
+            print "Now estimation error %f is less than errThreshold, iteration will break"%(err)
+            break
+
+        grad = xMat.T * err
+
+        #TODO how to caculate Hessian Matrix
+
+    return  theta
+
+
+
+def batchGradAscent(x, y, alpha, maxCycles , errThreshold):
+    xMat = mat(x)
+    yMat = mat(y).transpose()
+
+    # m: data sample number ;  n: feature number
+    mx,nx = shape(xMat)
+    print "for xMat, mx=%d, nx=%d"%(mx,nx)
+    my,ny = shape(yMat)
+    print "for yMat, my=%d, ny=%d"%(my,ny)
+
+    if mx!=my :
+        print "xMat's line count should equals yMat's"
+        assert(0)
+
+    theta = ones((nx, 1))
+
+    for k in range(maxCycles):
         h = sigmoid(xMat*theta)
 
         err = yMat - h
 
         #We should set an error threshold
-        if err <= errThreshold:
+        if abs(amax(err)) <= errThreshold:
             print "Now estimation error %f is less than errThreshold, iteration will break"%(err)
             break
         # theta: n by 1 ; xMat: m by n; err:m by 1
@@ -56,7 +107,7 @@ def batchGradAscent(x, y, alpha, maxCycles , errThreshold)
     return theta
 
 
-def batchGradDescent(x, y, alpha, maxCycles , errThreshold)
+def batchGradDescent(x, y, alpha, maxCycles , errThreshold):
     xMat = mat(x)
 
     my,ny = shape(yMat)
@@ -84,7 +135,7 @@ def batchGradDescent(x, y, alpha, maxCycles , errThreshold)
         err = yMat - h
 
         #We should set an error threshold
-        if err <= errThreshold:
+        if abs(amax(err)) <= errThreshold:
             print "Now estimation error %f is less than errThreshold, iteration will break"%(err)
             break
         # theta: n by 1 ; xMat: m by n; err:m by 1
@@ -119,11 +170,11 @@ def stocGradDescent0(x, y, alpha):
     return theta
 
 #An optimized Stochastic Gradient Ascent
-def stochaGradAscent(x, y, alpha, iterNum, errTheshold)
+def stochaGradAscent(x, y, alpha, iterNum, errTheshold):
     m,n = shape(x)
     theta = ones(n)   #initialize to all ones
 
-    if errTheshold <= 0
+    if errTheshold <= 0:
         print "Warning errThreshold: %f is invalid, it has to be larger than 0"%errTheshold
 
     for j in range(iterNum):
@@ -134,7 +185,7 @@ def stochaGradAscent(x, y, alpha, iterNum, errTheshold)
             h = sigmoid(sum(x[randIndex]*theta))
             err = y[randIndex] - h
 
-            if abs(err) <= errTheshold :
+            if abs(amax(err)) <= errTheshold :
                 print "error %f has converged"%(err)
                 break
 

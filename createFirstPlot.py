@@ -3,10 +3,11 @@ Created on Oct 27, 2010
 
 @author: Peter
 '''
-from numpy import *
-import kNN
-import matplotlib
 import matplotlib.pyplot as plt
+from numpy import *
+
+from machinelearninginaction.NBA.GeneralLearningAlgo import kNN
+
 fig = plt.figure()
 ax = fig.add_subplot(111)
 datingDataMat,datingLabels = kNN.file2matrix('datingTestSet.txt')
